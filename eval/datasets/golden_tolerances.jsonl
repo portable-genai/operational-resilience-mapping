@@ -1,0 +1,17 @@
+# Golden impact-tolerance set. Each expected_mtd is derived INDEPENDENTLY of the engine, straight
+# from the published pack tables at the chain criticality (worst of the service and its nodes), so
+# the tolerance_accuracy metric is scored against an oracle, not the pipeline's own output.
+# Packs (MTD minutes by criticality): APRA_CPS230 {critical:120,high:240,medium:720,low:1440};
+# DORA {critical:60,high:180,medium:480,low:960}; UK_OPRES {critical:240,high:480,medium:1440,low:2880}.
+#
+# `service_name` is the CLIENT-SUPPLIED label (it arrives verbatim in the POST /v1/tolerance
+# body), and `planted` is a raw identifier deliberately embedded in it. Every boundary the row
+# crosses (the model prompt, the WORM record, the review payload) must mask it, so pii_safety
+# goes red if any raw identifier survives. NRIC values must be checksum-valid or the validator
+# will not mask them. Obviously fictional data only.
+{"service_id": "payments", "service_criticality": "critical", "node_criticalities": ["high"], "regulator": "APRA_CPS230", "expected_mtd": 120, "service_name": "Retail Payments owner NRIC S1234567D (FICTIONAL)", "planted": "S1234567D"}
+{"service_id": "onboarding", "service_criticality": "high", "node_criticalities": ["medium"], "regulator": "APRA_CPS230", "expected_mtd": 240}
+{"service_id": "settlement", "service_criticality": "medium", "node_criticalities": ["critical"], "regulator": "DORA", "expected_mtd": 60}
+{"service_id": "reporting", "service_criticality": "low", "node_criticalities": [], "regulator": "UK_OPRES", "expected_mtd": 2880}
+{"service_id": "cards", "service_criticality": "high", "node_criticalities": ["high", "critical"], "regulator": "DORA", "expected_mtd": 60, "service_name": "Cards escalations to kai.tan@delta.example (FICTIONAL)", "planted": "kai.tan@delta.example"}
+{"service_id": "statements", "service_criticality": "medium", "node_criticalities": ["medium"], "regulator": "UK_OPRES", "expected_mtd": 1440}
