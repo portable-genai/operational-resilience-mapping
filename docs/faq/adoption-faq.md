@@ -43,7 +43,7 @@ Four things, and two of them are code here:
    (`RGC8_REGISTER_URL`, `RSK1_COMPLIANCE_URL`). Both siblings are unbuilt in this wave, so the
    offline fixtures are the frozen contract; the managed adapters refuse when unconfigured rather
    than inventing data.
-4. **The review console.** An Hrz7 deployment reachable at `HRZ_HUMAN_REVIEW_URL`. The managed
+4. **The review console.** An Hrz7 deployment reachable at `HUMAN_REVIEW_URL`. The managed
    router REFUSES to swallow an escalation when this is empty, so a fork cannot ship rule R8 unwired
    and green.
 
