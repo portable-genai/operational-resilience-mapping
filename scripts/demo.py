@@ -7,7 +7,7 @@ rather than stops being mentioned.
 
 Three properties make it worth running in front of somebody:
 
-* **Nothing is faked.** No stub service, no pre-baked JSON. The dependency map, the impact
+* **Nothing is faked.** No engine stub, no pre-baked JSON. The dependency map, the impact
   tolerances, the scenario verdicts, the audit records and the routing references are produced by
   the shipped code. Every consequential number comes from a pure engine, never from a model.
 * **It is bounded.** The demo proves an offline, single-process seam. It does not prove
