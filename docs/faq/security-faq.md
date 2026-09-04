@@ -52,7 +52,7 @@ them and the API preflight REFUSES to start under a managed profile while any li
 bound to a port the request path executes. Terraform's `managed_profile_implemented` local is the
 deploy-time half of the same rule. `tests/unit/test_managed_readiness.py` is the standing gate. The
 listed operations today are the asset-inventory scan, the document extraction, the Gemini narration,
-both halves of the AlloyDB map store, the Rgc8 register read and the Rsk1 compliance read. The test
+both halves of the AlloyDB map store, the `third-party-risk-ddq` register read and the `compliance-advisory` compliance read. The test
 holds the list EQUAL to the set of managed operations that actually raise, so the next placeholder
 cannot be added without an entry.
 
@@ -75,7 +75,7 @@ be dropped into is: exactly one port (`ports/generation.py`), a prompt built fro
 and a reply that is discarded unless it parses as JSON with a `narrative` key and quotes only
 figures the engine produced (`domain/narrative.py`: `parse_narrative`, `numbers_are_grounded`). A
 discarded or failed narration falls back to deterministic prose. Prompt-injection screening through
-the Hrz1 guardrail gateway is **not** wired, and it matters here because the managed design passes
+the `agent-guardrail-gateway` is **not** wired, and it matters here because the managed design passes
 extracted document text to the model. See [`../model-card.md`](../model-card.md).
 
 ### How is the audit trail protected?
@@ -102,13 +102,12 @@ expression cannot tell apart.
 
 - **Login.** This repo authenticates nobody itself: the platform in front of it does, and the UI
   forwards the assertion without parsing or trusting a parsed copy.
-- **Injection defence and output filtering.** Owned by Hrz1; not bound yet.
-- **The review queue.** Owned by Hrz7; this repo produces escalations and routes them.
-- **The third-party register.** Owned by Rgc8; read as data, never mirrored here.
-- **The regulatory corpus.** Owned by Rsk1; read as data, never restated here.
+- **Injection defence and output filtering.** Owned by `agent-guardrail-gateway`; not bound yet.
+- **The review queue.** Owned by `human-review-console`; this repo produces escalations and routes them.
+- **The third-party register.** Owned by `third-party-risk-ddq`; read as data, never mirrored here.
+- **The regulatory corpus.** Owned by `compliance-advisory`; read as data, never restated here.
 - **Durable storage of a map.** Not implemented today: offline the store is an in-process dict and
   the AlloyDB adapter raises. A deployment implements it, and its access control is part of that
   work.
 - **Network egress control.** VPC-SC governs access to Google APIs across perimeters, not arbitrary
-  internet egress. The private-egress rule that lets this service reach Rgc8, Rsk1 and the Hrz7
-  console and nothing else is an adopter network decision, called out in `COMPLIANCE.md` P-01.
+  internet egress. The private-egress rule that lets this service reach `third-party-risk-ddq`, `compliance-advisory` and the `human-review-console` and nothing else is an adopter network decision, called out in `COMPLIANCE.md` P-01.

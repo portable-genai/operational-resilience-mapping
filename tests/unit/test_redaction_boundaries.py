@@ -108,9 +108,11 @@ def test_the_worm_boundary_holds_for_a_citation_that_carries_client_text(
 ) -> None:
     """The offline citations are static regulatory references. The boundary must not rely on that.
 
-    The managed compliance adapter reads Rsk1 over the wire and the ingestion path builds a
+    The managed compliance adapter reads compliance-advisory over the wire and the ingestion path
+    builds a
     locator from a document field, so a citation is only safe by accident today. This drives the
-    REAL audit adapter with an Rsk1-shaped citation whose locator, title and snippet all carry
+    REAL audit adapter with an compliance-advisory-shaped citation whose locator, title and snippet
+    all carry
     client text, and requires the stored record to be clean.
     """
     from operational_resilience_mapping.domain.kernel import AuditEvent, Decision, Severity
@@ -151,7 +153,7 @@ def test_no_identifier_reaches_the_review_console() -> None:
         },
         sort_keys=True,
     )
-    _assert_clean(blob, "the Hrz7 review payload")
+    _assert_clean(blob, "the human-review-console review payload")
 
 
 def test_the_actor_is_kept_verbatim_because_it_is_attribution(

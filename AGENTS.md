@@ -7,7 +7,7 @@ here. Read it first. This file carries only what is specific to this one.
 
 ## What this is
 
-Operational Resilience Studio (Rgc9): Deterministic resilience-map and impact-tolerance studio; the model narrates only.
+Operational Resilience Studio (`operational-resilience-mapping`): Deterministic resilience-map and impact-tolerance studio; the model narrates only.
 Rendered from `hex-service-template`, so it starts at reference parity rather than converging
 toward it. Package `operational_resilience_mapping`, environment prefix
 `RESILIENCE`, region `asia-southeast1`.

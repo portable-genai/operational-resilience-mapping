@@ -18,7 +18,7 @@ service.
 | Profile | What it is | Who it is for |
 |---|---|---|
 | `local` | SDK-free offline stack: seeded dev personas, a hash-chained SQLite WORM audit log, an in-process map store, a fictional estate behind the ingestion ports, a deterministic stub narrator | dev, test, CI, and the offline demo |
-| `gcp` | the managed stack: IAP identity, Cloud Logging WORM, Cloud Asset Inventory, Document AI, AlloyDB, A2A clients for Rgc8 and Rsk1, an HTTP client to the Hrz7 console | a managed deployment, once its placeholders are implemented |
+| `gcp` | the managed stack: IAP identity, Cloud Logging WORM, Cloud Asset Inventory, Document AI, AlloyDB, A2A clients for `third-party-risk-ddq` and `compliance-advisory`, an HTTP client to the `human-review-console` | a managed deployment, once its placeholders are implemented |
 | `onprem` | fail-fast `NotImplementedError` placeholders | the sovereign exit: a client binds its own in-country implementations here |
 
 `RESILIENCE_PROFILE` selects the family. Unset means the offline adapters bind but nobody chose
@@ -29,7 +29,7 @@ them, which withdraws every relaxation rather than granting one.
 Not yet, and the repo says so in code rather than in a footnote.
 `managed_readiness.INCOMPLETE_MANAGED_OPERATIONS` names the managed adapters that are still
 placeholders (the asset-inventory scan, the document extraction, the Gemini narration, both
-halves of the AlloyDB map store, the Rgc8 register read and the Rsk1 compliance read), the API
+halves of the AlloyDB map store, the `third-party-risk-ddq` register read and the `compliance-advisory` compliance read), the API
 preflight refuses to boot under a managed profile while
 one of them is bound, and Terraform's `managed_profile_implemented` local
 (`infra/terraform/managed_readiness.tf`) gates the serving edge the same way. Treat the `gcp`

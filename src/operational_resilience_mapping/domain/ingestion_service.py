@@ -2,9 +2,9 @@
 
 Pure stdlib. It turns the three ingestion sources into typed dependency nodes:
 
-* technology dependencies from the asset-inventory port (:class:`ResourceConfig`);
-* third parties from Rgc8's outsourcing register over A2A (:class:`ThirdPartyArrangement`);
-* process/people/facilities nodes extracted from documents (:class:`ExtractedDocument`).
+* technology dependencies from the asset-inventory port (:class:`ResourceConfig`); * third parties
+  from third-party-risk-ddq's outsourcing register over A2A (:class:`ThirdPartyArrangement`); *
+  process/people/facilities nodes extracted from documents (:class:`ExtractedDocument`).
 
 The model proposes candidate dependency edges with citations; this engine deterministically
 reconciles them against the known nodes: it accepts only schema-valid edges (both endpoints
@@ -51,7 +51,7 @@ class IngestionService:
     def nodes_from_arrangements(
         arrangements: list[ThirdPartyArrangement],
     ) -> list[DependencyNode]:
-        """Third-party dependency nodes from Rgc8's register."""
+        """Third-party dependency nodes from third-party-risk-ddq's register."""
         return [
             DependencyNode(
                 id=arrangement.id,

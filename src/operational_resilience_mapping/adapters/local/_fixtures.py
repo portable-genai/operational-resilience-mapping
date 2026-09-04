@@ -1,10 +1,11 @@
 """Deterministic, obviously fictional fixture corpus for the offline (local) adapter family.
 
 All parties are synthetic (``.example`` domains, invented names). This is the estate the offline
-profile ingests: a technology inventory (asset-inventory port), an outsourcing register (Rgc8 A2A
-port), a document corpus (extraction port) and a grounded compliance answer (Rsk1 A2A port). It
-is also the frozen contract for the two unbuilt siblings (Rgc8, Rsk1): the contract fixture tests
-assert these shapes so the live feeds can be swapped in without a code change.
+profile ingests: a technology inventory (asset-inventory port), an outsourcing register
+(third-party-risk-ddq A2A port), a document corpus (extraction port) and a grounded compliance
+answer (compliance-advisory A2A port). It is also the frozen contract for the two unbuilt siblings
+(third-party-risk-ddq, compliance-advisory): the contract fixture tests assert these shapes so the
+live feeds can be swapped in without a code change.
 """
 
 from __future__ import annotations
@@ -65,7 +66,7 @@ RESOURCES: tuple[ResourceConfig, ...] = (
     ),
 )
 
-#: Third-party arrangements read from Rgc8's Outsourcing Register (fixture).
+#: Third-party arrangements read from third-party-risk-ddq's Outsourcing Register (fixture).
 ARRANGEMENTS: tuple[ThirdPartyArrangement, ...] = (
     ThirdPartyArrangement(
         id="tp-card-network",

@@ -1,4 +1,4 @@
-# Operational Resilience Studio (Rgc9) runtime configuration.
+# Operational Resilience Studio (operational-resilience-mapping) runtime configuration.
 #
 # Loaded by `src/operational_resilience_mapping/config.py`. Point at a different file with
 # RESILIENCE_SETTINGS; a path that is named but missing is a boot error, not
@@ -45,7 +45,7 @@ iap_audience: ${RESILIENCE_IAP_AUDIENCE:-}
 # deliberately distinct from this service's own inbound RESILIENCE_S2S_TOKEN.
 review_url: ${HUMAN_REVIEW_URL:-}
 
-# Slice 4 A2A read surfaces. Rgc8 (Outsourcing Register) and Rsk1 (compliance KB) are read as
+# Slice 4 A2A read surfaces. third-party-risk-ddq (Outsourcing Register) and compliance-advisory (compliance KB) are read as
 # data over A2A. Empty (the default) means the managed adapter REFUSES rather than inventing the
 # data; the offline profile uses the deterministic fixtures. Both are unbuilt in this wave, so
 # the fixtures are the frozen contract until the live feeds arrive.
@@ -73,7 +73,7 @@ adapters:
     onprem: operational_resilience_mapping.adapters.onprem.review_router:OnPremReviewRouter
 
   # Tracing. Which BACKEND a deployed profile exports to is not a binding: the gcp
-  # adapter reads OTEL_EXPORTER_OTLP_ENDPOINT and sends OTLP to the Hrz5 collector when it
+  # adapter reads OTEL_EXPORTER_OTLP_ENDPOINT and sends OTLP to the agent-observability collector when it
   # is set, straight to Cloud Trace when it is not. Tracing is not essential to
   # correctness, so onprem is ABSENT rather than fatal, unlike the other placeholders.
   tracer:
@@ -81,7 +81,7 @@ adapters:
     gcp: operational_resilience_mapping.adapters.gcp.tracer:CloudTracerAdapter
     onprem: operational_resilience_mapping.adapters.onprem.tracer:OnPremTracerAdapter
 
-  # The promotion authority (Hrz4). The local adapter scores offline but REFUSES to
+  # The promotion authority (model-quality-gate). The local adapter scores offline but REFUSES to
   # promote: a promotion certified by a laptop with no quality service is certified by
   # nothing.
   evaluation:

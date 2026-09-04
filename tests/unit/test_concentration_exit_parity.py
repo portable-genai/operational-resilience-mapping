@@ -1,9 +1,10 @@
 """Golden parity: the concentration engine reproduces the golden findings byte-identically.
 
-Exit and portability planning lives in Rgc9 as the ``concentration_exit`` module. This replays the
-golden set through that engine and asserts the findings match it exactly (dimension, level,
-regulatory reference and remediation), plus that a replay is deterministic. Without this pin an
-engine edit can move a finding's level or its regulatory reference and no test notices.
+Exit and portability planning lives in operational-resilience-mapping as the ``concentration_exit``
+module. This replays the golden set through that engine and asserts the findings match it exactly
+(dimension, level, regulatory reference and remediation), plus that a replay is deterministic.
+Without this pin an engine edit can move a finding's level or its regulatory reference and no test
+notices.
 """
 
 from __future__ import annotations

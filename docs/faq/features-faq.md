@@ -11,7 +11,7 @@ deterministic engines and one narrated step:
 
 1. **Ingestion and reconciliation** (`domain/ingestion_service.py`): three sources become typed
    dependency nodes, the technology estate from `AssetInventoryPort`, the material third parties
-   from Rgc8's register over `RegisterReadPort`, and the process, people and facilities nodes from
+   from `third-party-risk-ddq`'s register over `RegisterReadPort`, and the process, people and facilities nodes from
    documents through `DocumentExtractionPort`. Candidate edges are reconciled against the known
    nodes; a candidate whose endpoint is unknown becomes a named gap, never a silent edge.
 2. **Map integrity** (`domain/map_service.py`): deduplicates nodes and edges, and reports orphan
@@ -27,7 +27,7 @@ deterministic engines and one narrated step:
    report.
 5. **Concentration and exit** (`domain/concentration_exit/`): four deterministic dimensions,
    SINGLE_PROVIDER, SINGLE_REGION, CRITICAL_SERVICE and DATA_GRAVITY, each mapped to the
-   outsourcing expectation it offends and grounded afterwards on Rsk1's cited answer.
+   outsourcing expectation it offends and grounded afterwards on `compliance-advisory`'s cited answer.
 
 Narration sits on top of step 3 and computes nothing.
 
@@ -41,7 +41,7 @@ Three properties, all pure code:
 - **The derivation is replayable.** Same map, same pack, same tolerance, every time. The eval
   oracle re-derives the expected value from the SAME packs independently of the engine
   (`eval/run_eval.py`), so the metric measures the engine rather than agreeing with it.
-- **The regulatory basis is cited, never invented.** The grounding text comes from Rsk1 over
+- **The regulatory basis is cited, never invented.** The grounding text comes from `compliance-advisory` over
   `CompliancePort`. When that source is unavailable the answer carries no citations and sets
   `requires_human_review`, so an ungrounded finding escalates instead of being asserted.
 
@@ -60,10 +60,10 @@ may quote only engine figures; anything else is discarded and deterministic pros
 - **It will not invent a dependency.** A model-proposed edge whose endpoint is unknown becomes a
   reconciliation gap, not an edge.
 - **It will not invent regulatory text.** A concentration finding or a tolerance basis cites the
-  answer Rsk1 returned, and an unavailable source escalates.
+  answer `compliance-advisory` returned, and an unavailable source escalates.
 - **It will not auto-execute a consequential result.** A tolerance proposal is ALWAYS reviewed
   (`ResilienceReviewPolicy.requires_review` is unconditionally true), and a breached scenario is
-  CRITICAL; both are ROUTED to the Hrz7 console in the same call that produced them (rule R8).
+  CRITICAL; both are ROUTED to the `human-review-console` in the same call that produced them (rule R8).
 - **It will not become healthy on a managed profile with placeholder adapters bound.** The preflight
   refuses to start (`managed_readiness.py`).
 - **It will not answer without provenance.** Every claim carries a `Citation`.
@@ -85,17 +85,17 @@ and is not done.
 
 | Concern | Owner | How this repo touches it |
 |---|---|---|
-| The resilience map for an important business service | **this repo (Rgc9)** | it IS the system of record. Consumers read the map from here rather than rebuilding one. |
-| Impact tolerances and stay-within-tolerance scenario testing | **this repo (Rgc9)** | derived by pure engines from the map plus a regulator pack. |
-| Concentration and exit findings | **this repo (Rgc9)** | the `domain/concentration_exit/` module, kept here so a concentration finding can aggravate a scenario instead of living in a second tool. |
-| The third-party / outsourcing register | **Rgc8** third-party risk and DDQ | read as data over `RegisterReadPort` (`RGC8_REGISTER_URL`). Rgc8 is unbuilt, so the offline fixture register is the frozen contract. |
-| The regulatory corpus and grounded rule text | **Rsk1** compliance assistant | read over `CompliancePort` (`RSK1_COMPLIANCE_URL`). This repo cites what Rsk1 returns; it does not track the corpus. |
-| Agent discovery and entitlements | **Hrz3** agent registry | this agent publishes a card; the registry owns discovery. |
-| Model and agent promotion | **Hrz4** AI quality and model risk | `eval/run_eval.py --mode gate` asks Hrz4; the offline smoke mode never promotes. |
-| Traces and the immutable audit sink | **Hrz5** agent observability | `AuditSinkPort` and `ObservabilityTracerPort`. |
-| Human review and maker-checker | **Hrz7** human review console | `ReviewRouterPort` over the shared `review-kit`. This repo produces escalations; it does not render a queue. |
-| Prompt-injection defence and output filtering | **Hrz1** agent guardrail gateway | **not wired today.** It becomes mandatory the moment untrusted free text reaches the narrator (rule R1), and the managed design does pass extracted document text to it. |
-| Grounded retrieval over an enterprise corpus | **Hrz2** enterprise knowledge base | not wired; this service reasons over its own graph and cites Rsk1 for rule text. |
+| The resilience map for an important business service | **this repo (`operational-resilience-mapping`)** | it IS the system of record. Consumers read the map from here rather than rebuilding one. |
+| Impact tolerances and stay-within-tolerance scenario testing | **this repo (`operational-resilience-mapping`)** | derived by pure engines from the map plus a regulator pack. |
+| Concentration and exit findings | **this repo (`operational-resilience-mapping`)** | the `domain/concentration_exit/` module, kept here so a concentration finding can aggravate a scenario instead of living in a second tool. |
+| The third-party / outsourcing register | `third-party-risk-ddq` third-party risk and DDQ | read as data over `RegisterReadPort` (`RGC8_REGISTER_URL`). `third-party-risk-ddq` is unbuilt, so the offline fixture register is the frozen contract. |
+| The regulatory corpus and grounded rule text | `compliance-advisory` | read over `CompliancePort` (`RSK1_COMPLIANCE_URL`). This repo cites what `compliance-advisory` returns; it does not track the corpus. |
+| Agent discovery and entitlements | `agent-registry` | this agent publishes a card; the registry owns discovery. |
+| Model and agent promotion | `model-quality-gate` AI quality and model risk | `eval/run_eval.py --mode gate` asks `model-quality-gate`; the offline smoke mode never promotes. |
+| Traces and the immutable audit sink | `agent-observability` agent observability | `AuditSinkPort` and `ObservabilityTracerPort`. |
+| Human review and maker-checker | `human-review-console` human review console | `ReviewRouterPort` over the shared `review-kit`. This repo produces escalations; it does not render a queue. |
+| Prompt-injection defence and output filtering | `agent-guardrail-gateway` agent guardrail gateway | **not wired today.** It becomes mandatory the moment untrusted free text reaches the narrator (rule R1), and the managed design does pass extracted document text to it. |
+| Grounded retrieval over an enterprise corpus | `enterprise-knowledge-base` | not wired; this service reasons over its own graph and cites `compliance-advisory` for rule text. |
 
 ### Can I demo it without a cloud project?
 
@@ -112,5 +112,5 @@ demo makes but nobody verifies cannot exist.
 The honest list is [`../practices-audit.md`](../practices-audit.md) and the `TODO (repo owner)` rows
 in [`../../COMPLIANCE.md`](../../COMPLIANCE.md). The four that matter most for a production
 decision: the managed placeholders named in `managed_readiness.py` (including durable map
-persistence), routes for the scenario and concentration engines, the Hrz1 guardrail binding, and
-registering this repo's metric bundle with Hrz4 so `--mode gate` has an authority to ask.
+persistence), routes for the scenario and concentration engines, the `agent-guardrail-gateway` binding, and
+registering this repo's metric bundle with `model-quality-gate` so `--mode gate` has an authority to ask.

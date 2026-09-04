@@ -13,7 +13,7 @@ names on the service), the Terraform `name_prefix` resource stem (`rgc9-svc`) an
 git id in one pass. Preview with `--dry-run`, apply with `--yes`, then recreate the venv,
 `make install`, and run `make gate`. It skips itself, so the renamer is never left half-rewritten,
 and it validates `--resource` against the same regex `infra/terraform/variables.tf` enforces, so a
-stem the stack would refuse fails here rather than at plan time. The catalog id `Rgc9` is left alone
+stem the stack would refuse fails here rather than at plan time. The catalog id `operational-resilience-mapping` is left alone
 unless you pass `--catalog-id`, so a fork stays traceable to the entry it descends from. The script
 does the mechanical rename; the human decisions (region, IdP, the estate, the tolerance packs, the
 eval golden sets) are the checklist in `ADOPTING.md`.
@@ -39,11 +39,11 @@ Four things, and two of them are code here:
 2. **Durable map persistence.** Offline the store is a per-instance dict; the managed AlloyDB
    adapter raises. Implementing `MapStorePort` against a real store, carrying each map's owning
    tenant on its rows, is the largest single piece of adoption work and it is not started.
-3. **The upstream feeds.** Rgc8's register and Rsk1's compliance answers are read over A2A
+3. **The upstream feeds.** `third-party-risk-ddq`'s register and `compliance-advisory`'s compliance answers are read over A2A
    (`RGC8_REGISTER_URL`, `RSK1_COMPLIANCE_URL`). Both siblings are unbuilt in this wave, so the
    offline fixtures are the frozen contract; the managed adapters refuse when unconfigured rather
    than inventing data.
-4. **The review console.** An Hrz7 deployment reachable at `HUMAN_REVIEW_URL`. The managed
+4. **The review console.** An `human-review-console` deployment reachable at `HUMAN_REVIEW_URL`. The managed
    router REFUSES to swallow an escalation when this is empty, so a fork cannot ship rule R8 unwired
    and green.
 
@@ -109,7 +109,6 @@ keys and the `facts` dict the checks read.
 [`../practices-audit.md`](../practices-audit.md) carries the per-check verdict and the work list.
 The ones that matter most before production: the managed placeholders in `managed_readiness.py`
 (the asset-inventory scan, document extraction, Gemini narration and both halves of the AlloyDB map
-store), the missing surfaces for the scenario and concentration engines, binding the Hrz1 guardrail
-gateway before untrusted document text reaches a narrator, registering this repo's metric bundle
-with Hrz4 so `eval/run_eval.py --mode gate` has an authority to ask, and B4. The Terraform stack is
+store), the missing surfaces for the scenario and concentration engines, binding the `agent-guardrail-gateway` before untrusted document text reaches a narrator, registering this repo's metric bundle
+with `model-quality-gate` so `eval/run_eval.py --mode gate` has an authority to ask, and B4. The Terraform stack is
 written, validated and tested against a mocked provider; it has never been applied.

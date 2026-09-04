@@ -36,7 +36,8 @@ class ToleranceResponse(BaseModel):
     tolerances: list[ToleranceItem]
     narrative: str
     requires_human_review: bool
-    #: Where the escalation WENT (rule R8): the Hrz7 review id or the local queue reference. A
+    #: Where the escalation WENT (rule R8): the human-review-console review id or the local queue
+    #: reference. A
     #: tolerance proposal is always consequential, so this is never empty on success.
     review_ref: str = ""
     citations: list[CitationModel] = []

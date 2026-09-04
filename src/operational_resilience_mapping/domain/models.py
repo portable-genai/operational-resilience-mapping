@@ -9,7 +9,7 @@ The studio builds a resilience map for an important business service (the depend
 people, process, technology, facilities, third parties and data), proposes impact tolerances per
 regulator, and tests stay-within-tolerance under a failure scenario. Every consequential number
 comes from a pure engine; the model narrates only. ``ResilienceReview`` is the consequential
-result routed to Hrz7 under rule R8.
+result routed to human-review-console under rule R8.
 """
 
 from __future__ import annotations
@@ -197,7 +197,8 @@ class ToleranceProposal:
     """A consequential impact-tolerance proposal (the slice-5 artifact).
 
     Setting a tolerance is consequential, so ``requires_human_review`` is unconditionally True
-    and the proposal routes to Hrz7 under rule R8. The engine derives every value; the model
+    and the proposal routes to human-review-console under rule R8. The engine derives every value;
+    the model
     drafts only the ``narrative`` justification.
     """
 
@@ -245,7 +246,8 @@ class ScenarioResult:
 
 @dataclass(frozen=True, slots=True)
 class ResilienceReview:
-    """The consequential result the studio routes to Hrz7: a subject, a severity and cited reasons.
+    """The consequential result the studio routes to human-review-console: a subject, a severity and
+    cited reasons.
 
     A tolerance proposal or a breached scenario becomes one of these, carrying the severity band
     the engine computed (never a model-produced number) and the citations behind it. The review
@@ -267,7 +269,9 @@ class ResilienceReview:
 
 @dataclass(frozen=True, slots=True)
 class ExtractedDocument:
-    """The structured result of extracting a source document (Doc2-shape extraction port)."""
+    """The structured result of extracting a source document (credit-memo-drafting-shape extraction
+    port).
+    """
 
     document_id: str
     mime_type: str
@@ -283,7 +287,9 @@ class ExtractedDocument:
 
 @dataclass(frozen=True, slots=True)
 class ResourceConfig:
-    """A normalised technology-dependency resource (Rsk3-shape asset-inventory port)."""
+    """A normalised technology-dependency resource (architecture-validator-shape asset-inventory
+    port).
+    """
 
     id: str
     kind: str
@@ -296,7 +302,7 @@ class ResourceConfig:
 
 @dataclass(frozen=True, slots=True)
 class ThirdPartyArrangement:
-    """One outsourcing / material arrangement read from Rgc8's register over A2A."""
+    """One outsourcing / material arrangement read from third-party-risk-ddq's register over A2A."""
 
     id: str
     vendor_name: str
@@ -309,7 +315,7 @@ class ThirdPartyArrangement:
 
 @dataclass(frozen=True, slots=True)
 class ComplianceAnswer:
-    """A Rsk1 Compliance Assistant answer: the outsourcing / resilience rule text + citations."""
+    """A compliance-advisory answer: the outsourcing / resilience rule text + citations."""
 
     question: str
     answer: str

@@ -1,4 +1,4 @@
-# Model card: Operational Resilience Studio (Rgc9)
+# Model card: Operational Resilience Studio (`operational-resilience-mapping`)
 
 This is a STARTER model card. It records the model boundary as built and the controls that must be
 completed before a managed deployment. The deterministic engines are the system of record; the
@@ -52,7 +52,7 @@ into, not as a description of a model that is running.
 - Personal data is masked before the audit write and before an outbound review payload
   (`domain/pii.py`, `adapters/_review_payload.py`), and `agent/tools.py` masks a tool result before
   it can enter a model's context.
-- Every consequential result sets `requires_human_review` and is routed to Hrz7 (rule R8) in the
+- Every consequential result sets `requires_human_review` and is routed to `human-review-console` (rule R8) in the
   same call; nothing auto-executes. `tests/unit/test_review_routing.py` asserts the routing rather
   than the flag.
 
@@ -109,10 +109,10 @@ still an aspiration for the rest.
   report whether it came from the model or from the fallback, so a narrator that silently fails
   every call looks identical to one that works. Return the provenance alongside the text before you
   enable a managed narrator, so the eval and the demo can tell them apart.
-- **Evaluation of the live model**: add a managed-profile run, registered with the Hrz4 promotion
+- **Evaluation of the live model**: add a managed-profile run, registered with the `model-quality-gate` promotion
   gate (P-08, rule R5), that scores `narrative_groundedness` over RAW narrator output rather than
   over the check's own fixtures.
-- **Prompt-injection screening** (rule R1): the Hrz1 guardrail gateway is not bound. The exposure
+- **Prompt-injection screening** (rule R1): the `agent-guardrail-gateway` is not bound. The exposure
   is real here rather than theoretical, because the managed pipeline is designed to pass extracted
   DOCUMENT TEXT (process docs, runbooks, org charts, via `DocumentExtractionPort`) to the model for
   edge proposal. Screen that text before it reaches a prompt, and fail closed to deterministic-only

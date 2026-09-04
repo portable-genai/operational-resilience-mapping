@@ -58,7 +58,8 @@ PII_SERVICE = ImportantBusinessService(
 )
 
 #: A citation whose LOCATOR and TITLE carry personal data, not only its snippet. The offline
-#: compliance fixture answers static regulatory references, but the managed adapter reads Rsk1
+#: compliance fixture answers static regulatory references, but the managed adapter reads
+#: compliance-advisory
 #: over the wire and the ingestion path builds a locator from a document field, so a citation is
 #: not structurally safe just because today's fixture happens to be.
 PII_CITATION = Citation(
