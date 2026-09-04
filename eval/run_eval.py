@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Evaluation gate for Operational Resilience Studio (Rgc9).
+"""Evaluation gate for Operational Resilience Studio (operational-resilience-mapping).
 
 Two named layers via ``--mode`` (the scaffold is ``agent_eval_kit.eval_main``):
 
 * **smoke** (default) - the offline pre-merge check CI runs on every change: it drives the real
-  deterministic engines against a golden set with SDK-free local adapters and scores four
-  metrics, each against the dataset's OWN expected outcome (an independent oracle), never against
-  the pipeline's own verdict. Every metric is proved able to go red.
-* **gate** - the promotion verdict from the shared Hrz4 authority (requires the ``gcp`` profile),
-  via ``agent_eval_kit.PromotionGateClient``.
+  deterministic engines against a golden set with SDK-free local adapters and scores four metrics,
+  each against the dataset's OWN expected outcome (an independent oracle), never against the
+  pipeline's own verdict. Every metric is proved able to go red. * **gate** - the promotion verdict
+  from the shared model-quality-gate authority (requires the ``gcp`` profile), via
+  ``agent_eval_kit.PromotionGateClient``.
 
 Exit is ``0`` iff every metric meets its threshold (and, in gate mode, the authority agrees).
 """
@@ -59,7 +59,8 @@ THRESHOLDS: dict[str, float] = {
     "narrative_groundedness": 0.99,
     "pii_safety": 0.99,
 }
-#: The registered Hrz4 metric bundle for this vertical (Hrz4 owns the metrics + thresholds).
+#: The registered model-quality-gate metric bundle for this vertical (model-quality-gate owns the
+#: metrics + thresholds).
 _BUNDLE = "operational-resilience-mapping"
 
 #: The verified principal and tenant the eval attributes its runs to. Never client-asserted.
@@ -109,7 +110,8 @@ def audit_texts(rows: Iterable[Mapping[str, Any]]) -> list[str]:
     """Every CONTENT-bearing field of every audit row, which is what a leak scan has to read.
 
     The summary alone is not the record: citations travel inside it and carry source text in
-    ``snippet`` and, when the managed compliance adapter answers from Rsk1, in ``source_id`` and
+    ``snippet`` and, when the managed compliance adapter answers from compliance-advisory, in
+    ``source_id`` and
     ``title`` too. Scoring only ``redacted_summary`` would ask the redactor whether it had
     redacted and believe the answer.
 
@@ -311,6 +313,6 @@ if __name__ == "__main__":
             smoke=run_smoke,
             gate=run_gate,
             default_dataset=DEFAULT_DATASET,
-            description="Offline / Hrz4 evaluation gate for Rgc9.",
+            description="Offline / model-quality-gate for operational-resilience-mapping.",
         )
     )

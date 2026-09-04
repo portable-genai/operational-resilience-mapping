@@ -1,7 +1,8 @@
 """Local RegisterReadPort: return the fictional outsourcing register (SDK-free).
 
-Rgc8 is unbuilt in this wave, so this fixture register is the frozen contract Rgc9 reads over
-A2A. The contract fixture test asserts the shape so the live Rgc8 feed swaps in unchanged.
+third-party-risk-ddq is unbuilt in this wave, so this fixture register is the frozen contract
+operational-resilience-mapping reads over A2A. The contract fixture test asserts the shape so the
+live third-party-risk-ddq feed swaps in unchanged.
 """
 
 from __future__ import annotations

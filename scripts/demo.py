@@ -75,7 +75,7 @@ def loaded_cloud_sdks() -> tuple[str, ...]:
 
 #: Rendered identity, bound once so no other line's length depends on how long a name is.
 SERVICE_NAME = "Operational Resilience Studio"
-CATALOG_ID = "Rgc9"
+CATALOG_ID = "operational-resilience-mapping"
 REPOSITORY = "operational-resilience-mapping"
 
 #: The VERIFIED principal the demo attributes work to. A client never asserts this.
@@ -305,7 +305,6 @@ class DemoRun:
             title="Deployment",
             rows=(
                 Row("Service", SERVICE_NAME),
-                Row("Catalog id", CATALOG_ID),
                 Row("Profile", self.settings.profile, "ok"),
                 Row("Profiles bound for every port", ", ".join(profiles)),
                 Row("Residency region", self.settings.region),
@@ -665,7 +664,6 @@ class DemoRun:
         current = self.results[-1]
         return {
             "service": SERVICE_NAME,
-            "catalog_id": CATALOG_ID,
             "repository": REPOSITORY,
             "profile": self.settings.profile,
             "region": self.settings.region,

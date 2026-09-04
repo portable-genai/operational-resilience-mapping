@@ -62,7 +62,8 @@ def redacted_citations(citations: tuple[Citation, ...]) -> tuple[Citation, ...]:
     """Mask EVERY field of every citation: the locator and the title as well as the snippet.
 
     A snippet is a slice of its source, and a locator is routinely built from one too: the
-    managed compliance adapter reads Rsk1 over the wire and the ingestion path builds a locator
+    managed compliance adapter reads compliance-advisory over the wire and the ingestion path builds
+    a locator
     from a document field. Today's offline fixtures happen to answer static regulatory
     references, which makes the citations safe by accident rather than by rule. No sink can tell
     a regulatory citation from a document-derived one by inspection, so this masks

@@ -1,9 +1,9 @@
 """StudioService: the resilience-studio orchestration (slices 3 to 7).
 
-Owns the pipeline and calls only ports plus the pure engines. Every consequential number comes
-from an engine (MapService integrity, ToleranceEngine, ScenarioEngine, ConcentrationService); the
-model narrates only, schema-validated and discarded on failure. Consequential results
-(a tolerance proposal, a breached scenario) set ``requires_human_review`` and route to Hrz7 under
+Owns the pipeline and calls only ports plus the pure engines. Every consequential number comes from
+an engine (MapService integrity, ToleranceEngine, ScenarioEngine, ConcentrationService); the model
+narrates only, schema-validated and discarded on failure. Consequential results (a tolerance
+proposal, a breached scenario) set ``requires_human_review`` and route to human-review-console under
 rule R8 in the SAME call that produced them. PII is redacted before any audit write.
 
 The domain stays pure: this module imports no web framework and no cloud SDK. The proposer that
@@ -177,7 +177,7 @@ class StudioService:
         return stored
 
     # ------------------------------------------------------------------ #
-    # Slice 5: propose impact tolerances (consequential, routes to Hrz7)
+    # Slice 5: propose impact tolerances (consequential, routes to human-review-console)
     # ------------------------------------------------------------------ #
     def propose_tolerances(
         self,
@@ -188,7 +188,8 @@ class StudioService:
         *,
         tenant: str = "",
     ) -> tuple[ToleranceProposal, str]:
-        """Derive tolerances, narrate the justification, and route the proposal to Hrz7 (R8).
+        """Derive tolerances, narrate the justification, and route the proposal to
+        human-review-console (R8).
 
         The whole path runs inside one span, and its attributes are STRUCTURAL only: the
         action, the actor, the tenant and the regulator, an enum. Never the service name,
@@ -249,7 +250,9 @@ class StudioService:
         scenario_kind: ScenarioKind = ScenarioKind.VENDOR_FAILURE,
         tenant: str = "",
     ) -> tuple[ScenarioResult, str]:
-        """Remove a node, propagate disruption, compare to MTD, and route a breach to Hrz7 (R8)."""
+        """Remove a node, propagate disruption, compare to MTD, and route a breach to
+        human-review-console (R8).
+        """
         from .scenario_engine import ScenarioEngine
 
         mtd = self._mtd_minutes(tolerances)
@@ -390,7 +393,8 @@ class StudioService:
 
         ``service.name`` is client-supplied: it arrives verbatim in the ``POST /v1/tolerance``
         body and is never validated as a label. ``requirement.answer`` is regulatory prose from
-        the compliance port, which the managed adapter reads from Rsk1 over the wire. Both
+        the compliance port, which the managed adapter reads from compliance-advisory over the wire.
+        Both
         reached the bound generation adapter unmasked, so under the ``gcp`` profile a raw
         identifier in a service name was sent to Gemini, while the audit write two frames later
         was careful to mask the same string. The model boundary is a separate sink from the WORM

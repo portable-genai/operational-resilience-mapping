@@ -92,9 +92,9 @@ is bound (`managed_readiness.py`). The seam around it is complete (one port, a J
 groundedness check on every figure, and a deterministic fallback that stands in whenever narration
 is malformed, ungrounded or raises), so every consequential number is engine-produced whatever is
 bound. What is NOT in place: no model id is pinned anywhere, there is no token budget, rate limit or
-kill switch, no live-model eval run has been registered with the Hrz4 promotion gate, the service
+kill switch, no live-model eval run has been registered with the `model-quality-gate` promotion gate, the service
 does not yet report whether a narrative came from a model or from the fallback, and
-prompt-injection screening through Hrz1 is not bound. Until those close, only the deterministic
+prompt-injection screening through `agent-guardrail-gateway` is not bound. Until those close, only the deterministic
 path should be relied on.
 
 ### Which regulations does this claim to satisfy?
@@ -112,8 +112,8 @@ vendor default to inherit unexamined.
 
 The `Partial` and `TODO (repo owner)` rows in `COMPLIANCE.md`, each of which names exactly what is
 missing. The ones that need a risk acceptance if you go live without them: the managed placeholders
-named in `managed_readiness.py` (including durable map persistence), rule R1 (the Hrz1 guardrail
+named in `managed_readiness.py` (including durable map persistence), rule R1 (the `agent-guardrail-gateway`
 binding, which matters here because the managed design passes extracted document text to a model),
-rule R5 and P-08 (the Hrz4 metric bundle), P-10 (timeouts, circuit breaker and a documented kill
+rule R5 and P-08 (the `model-quality-gate` metric bundle), P-10 (timeouts, circuit breaker and a documented kill
 switch), and P-01's private-egress rule, which depends on your own network rather than on this
 repo.

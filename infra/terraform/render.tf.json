@@ -3,6 +3,6 @@
     "render_region": "asia-southeast1",
     "render_package_name": "operational_resilience_mapping",
     "render_env_prefix": "RESILIENCE",
-    "render_catalog_id": "Rgc9"
+    "render_repository": "operational-resilience-mapping"
   }
 }

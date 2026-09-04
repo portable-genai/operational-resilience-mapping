@@ -1,11 +1,12 @@
 """Shared conversion from an escalated result to an ``review-kit`` Review payload.
 
-Lives in the adapter layer, not the pure domain, because it depends on the kit. The subject,
-summary and every citation snippet are redacted BEFORE they leave the process (the same
+Lives in the adapter layer, not the pure domain, because it depends on the kit. The subject, summary
+and every citation snippet are redacted BEFORE they leave the process (the same
 redact-before-anything rule the audit write obeys), using the shared ``pii-kit``, so no raw
-identifier reaches Hrz7 over the wire; Hrz7 redacts again before its own audit write (defence in
-depth). ``maker`` and ``tenant`` are asserted here and trusted by Hrz7 because the caller is an
-authenticated S2S service; per-hop on-behalf-of token exchange is the deferred next layer.
+identifier reaches human-review-console over the wire; human-review-console redacts again before its
+own audit write (defence in depth). ``maker`` and ``tenant`` are asserted here and trusted by
+human-review-console because the caller is an authenticated S2S service; per-hop on-behalf-of token
+exchange is the deferred next layer.
 """
 
 from __future__ import annotations
@@ -44,7 +45,8 @@ def _redact(text: str) -> str:
 def _kit_citations(result: ResilienceReview) -> tuple[KitCitation, ...]:
     """Every field of every citation is masked, not only the snippet.
 
-    A locator can be built from client text (an Rsk1 answer reference, an ingested document
+    A locator can be built from client text (an compliance-advisory answer reference, an ingested
+    document
     field), so masking only the snippet let the identifier cross to the shared console in the
     field named like a key. De-duplication keys off the REDACTED locator, so two citations that
     differ only in a masked identifier collapse to one rather than both crossing the wire.
@@ -69,7 +71,7 @@ def _kit_citations(result: ResilienceReview) -> tuple[KitCitation, ...]:
 
 
 def result_to_review(result: ResilienceReview, *, maker: str, tenant: str = "") -> Review:
-    """Build the review a producer submits to Hrz7 when a result escalates.
+    """Build the review a producer submits to human-review-console when a result escalates.
 
     The subject is redacted ONCE and reused for the case reference and the idempotency key, so no
     raw identifier reaches the wire even through a derived field: a service label should never
@@ -87,6 +89,6 @@ def result_to_review(result: ResilienceReview, *, maker: str, tenant: str = "") 
         sod_group="operational_resilience_mapping-maker-checker",
         case_ref=subject,
         # Producer-owned, tenant-scoped key so a retried delivery is idempotent at the console.
-        source_key=f"Rgc9:{subject}:{result.severity.value}",
+        source_key=f"operational-resilience-mapping:{subject}:{result.severity.value}",
         citations=_kit_citations(result),
     )

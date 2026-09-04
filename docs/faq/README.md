@@ -13,10 +13,10 @@ audience; skim the one that matches your role.
 | [compliance-faq.md](compliance-faq.md) | Compliance / model risk / second line | why a tolerance is defensible, maker-checker, residency, retention, model-risk evidence |
 
 These FAQs deliberately do **not** re-document capabilities owned by sibling systems in the GRC
-catalog. Where a concern belongs to another repo (the outsourcing register Rgc8, the regulatory
-corpus Rsk1, the guardrail gateway Hrz1, the knowledge base Hrz2, the agent registry Hrz3, the
-eval and promotion authority Hrz4, observability and the WORM sink Hrz5, the human-review console
-Hrz7), the FAQ points at it and explains the boundary rather than duplicating it. See
+catalog. Where a concern belongs to another repo (the outsourcing register `third-party-risk-ddq`, the regulatory
+corpus `compliance-advisory`, the guardrail gateway `agent-guardrail-gateway`, the knowledge base `enterprise-knowledge-base`, the agent registry `agent-registry`, the
+eval and promotion authority `model-quality-gate`, observability and the WORM sink `agent-observability`, the human-review console
+`human-review-console`), the FAQ points at it and explains the boundary rather than duplicating it. See
 [features-faq.md](features-faq.md) for the full "what this repo owns vs what it integrates" map.
 
 Authority order for anything these pages disagree with: [`SPEC.md`](../../SPEC.md), then

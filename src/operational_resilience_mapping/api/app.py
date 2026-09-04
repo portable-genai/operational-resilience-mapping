@@ -1,4 +1,4 @@
-"""FastAPI application for Operational Resilience Studio (Rgc9).
+"""FastAPI application for Operational Resilience Studio (operational-resilience-mapping).
 
 Import-safe (the Container is built at request time, never at import; only ``Settings`` is read
 at import, to learn which identity adapter is bound, and no adapter is constructed), identity is
@@ -283,7 +283,8 @@ def propose_tolerance(
     """Build the resilience map and propose impact tolerances; the audit actor is the principal.
 
     Setting a tolerance is consequential, so the proposal always sets ``requires_human_review``
-    and rule R8 ROUTES it to the Hrz7 console here, in the same request that produced it. The
+    and rule R8 ROUTES it to the human-review-console here, in the same request that produced it.
+    The
     maker is the verified principal, never the request body. Every tolerance value comes from the
     deterministic engine; the model narrates only.
     """

@@ -1,7 +1,7 @@
 """Local CompliancePort: return the grounded fixture regulatory answer (SDK-free).
 
-Rsk1 is read as data; this fixture answer is the frozen contract. The studio grounds every
-tolerance basis and concentration finding on the citations this returns, so it never invents
+compliance-advisory is read as data; this fixture answer is the frozen contract. The studio grounds
+every tolerance basis and concentration finding on the citations this returns, so it never invents
 regulatory text.
 """
 

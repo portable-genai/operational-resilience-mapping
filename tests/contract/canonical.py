@@ -224,14 +224,16 @@ CANONICAL_CALLS: dict[str, PortCase] = {
     "register": PortCase(
         invoke=_register_invoke,
         answered=_register_answered,
-        # Rgc8 unconfigured: the managed register client refuses rather than inventing vendors.
+        # third-party-risk-ddq unconfigured: the managed register client refuses rather than
+        # inventing vendors.
         managed_refusal=(RuntimeError,),
         detail="list the third-party arrangements in scope",
     ),
     "compliance": PortCase(
         invoke=_compliance_invoke,
         answered=_compliance_answered,
-        # Rsk1 unconfigured: the managed compliance client refuses rather than inventing text.
+        # compliance-advisory unconfigured: the managed compliance client refuses rather than
+        # inventing text.
         managed_refusal=(RuntimeError,),
         detail="return the grounded regulatory requirement",
     ),
@@ -254,7 +256,7 @@ CANONICAL_CALLS: dict[str, PortCase] = {
     "evaluation": PortCase(
         invoke=_evaluation_invoke,
         answered=_evaluation_answered,
-        # The managed gate reaches Hrz4 over HTTP, which is unreachable offline.
+        # The managed gate reaches model-quality-gate over HTTP, which is unreachable offline.
         managed_refusal=(Exception,),
         detail="score one golden dataset through the promotion authority",
     ),

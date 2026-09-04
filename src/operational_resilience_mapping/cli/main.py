@@ -23,7 +23,9 @@ def main(argv: list[str] | None = None) -> int:
     map_cmd.add_argument("--actor", default="cli-user@bank.example")
     map_cmd.add_argument("--tenant", default="")
 
-    tol_cmd = sub.add_parser("tolerance", help="Propose impact tolerances (routes to Hrz7).")
+    tol_cmd = sub.add_parser(
+        "tolerance", help="Propose impact tolerances (routes to human-review-console)."
+    )
     tol_cmd.add_argument("service_id")
     tol_cmd.add_argument("service_name")
     tol_cmd.add_argument("--regulator", default="APRA_CPS230", choices=[r.value for r in Regulator])

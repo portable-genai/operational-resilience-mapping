@@ -1,4 +1,4 @@
-"""Operational Resilience Studio (Rgc9).
+"""Operational Resilience Studio (operational-resilience-mapping).
 
 Deterministic resilience-map and impact-tolerance studio; the model narrates only.
 

@@ -438,12 +438,14 @@ class Settings:
     #: that verifies perfectly. Empty means no anchor, which is right for the ephemeral
     #: ``:memory:`` store and wrong for anything durable.
     audit_anchor_path: str = ""
-    #: Base URL of the Hrz7 Human-Review console the R8 producer path submits to.
+    #: Base URL of the human-review-console Human-Review console the R8 producer path submits to.
     review_url: str = ""
-    #: Base URL of Rgc8's Outsourcing Register A2A read surface (slice 4). Empty means the managed
+    #: Base URL of third-party-risk-ddq's Outsourcing Register A2A read surface (slice 4). Empty
+    #: means the managed
     #: register adapter refuses rather than inventing third parties; the offline fixture stands in.
     register_url: str = ""
-    #: Base URL of Rsk1's compliance knowledge base A2A surface. Empty means the managed compliance
+    #: Base URL of compliance-advisory's compliance knowledge base A2A surface. Empty means the
+    #: managed compliance
     #: adapter refuses rather than inventing regulatory text; the offline fixture stands in.
     compliance_url: str = ""
     #: The audience the managed IAP identity adapter verifies the signed assertion AGAINST: the
