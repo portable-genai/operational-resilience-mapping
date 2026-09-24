@@ -67,6 +67,7 @@ from hex_service_kit.web import (
     make_require_service_caller,
 )
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import (
     LOCAL_PROFILE,
     Container,
@@ -289,7 +290,10 @@ def propose_tolerance(
     deterministic engine; the model narrates only.
     """
     container = _container()
-    studio = build_studio(container)
+    # The hand-off never fails an already-derived, already-audited proposal; the response says
+    # what happened to it instead (the fleet's runtime-control contract).
+    routing = RecordingReviewRouter(container.review_router)
+    studio = build_studio(container, review_router=routing)
     service = ImportantBusinessService(id=request.service_id, name=request.service_name)
     resilience_map, _reconciliation, _gaps = studio.build_map(
         service,
@@ -305,7 +309,9 @@ def propose_tolerance(
         actor=principal.actor,
         tenant=principal.tenant,
     )
-    return ToleranceResponse.from_domain(proposal, review_ref=review_ref)
+    return ToleranceResponse.from_domain(
+        proposal, review_ref=review_ref, review_routing=routing.outcome.value
+    )
 
 
 def _parse_regulator(raw: str) -> Regulator:

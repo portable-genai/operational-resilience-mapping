@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 from ..domain.models import ToleranceProposal
@@ -37,13 +39,22 @@ class ToleranceResponse(BaseModel):
     narrative: str
     requires_human_review: bool
     #: Where the escalation WENT (rule R8): the human-review-console review id or the local queue
-    #: reference. A
-    #: tolerance proposal is always consequential, so this is never empty on success.
+    #: reference. A tolerance proposal is always consequential, so this is empty only when the
+    #: hand-off did not reach the console, and ``review_routing`` says why.
     review_ref: str = ""
+    #: What happened to the hand-off: routed, failed, off or not_required. ``failed`` means the
+    #: proposal is NOT queued for review, and the console says so.
+    review_routing: Literal["routed", "failed", "off", "not_required"] = "not_required"
     citations: list[CitationModel] = []
 
     @classmethod
-    def from_domain(cls, proposal: ToleranceProposal, *, review_ref: str = "") -> ToleranceResponse:
+    def from_domain(
+        cls,
+        proposal: ToleranceProposal,
+        *,
+        review_ref: str = "",
+        review_routing: str = "not_required",
+    ) -> ToleranceResponse:
         return cls(
             service_id=proposal.service_id,
             regulator=proposal.regulator.value,
@@ -60,6 +71,7 @@ class ToleranceResponse(BaseModel):
             narrative=proposal.narrative,
             requires_human_review=proposal.requires_human_review,
             review_ref=review_ref,
+            review_routing=review_routing,  # type: ignore[arg-type]
             citations=[
                 CitationModel(source_id=c.source_id, title=c.title, snippet=c.snippet)
                 for c in proposal.citations

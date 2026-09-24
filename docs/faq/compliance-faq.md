@@ -30,8 +30,10 @@ within-tolerance one with aggravators is HIGH. Setting `requires_human_review` a
 `ReviewRouterPort.route` is one act rather than a flag plus an intention: the API, the CLI and the
 agent tool all route in the same call that produced the result, and
 `tests/unit/test_review_routing.py` asserts the routing rather than the flag. Under the managed
-profile the router REFUSES when no console is configured, so a deployment cannot swallow an
-escalation silently.
+profile the service REFUSES TO BOOT with routing on and no console configured, and every response
+says what happened to its hand-off (`review_routing`: routed, failed, off or not_required), so a
+deployment cannot swallow an escalation silently. Switching routing off
+(`RESILIENCE_REVIEW_ROUTING=off`) is a stated posture the service logs at startup.
 
 ### Where does the data live, and is residency enforced or just documented?
 
