@@ -7,6 +7,7 @@ import sys
 
 from hex_service_kit.logging import configure_logging
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import build_container
 from ..domain.models import ImportantBusinessService, Regulator
 from ..factory import build_studio
@@ -37,7 +38,8 @@ def main(argv: list[str] | None = None) -> int:
     container = build_container()
     # Idempotent: a process that is both an API app and a CLI configures once.
     configure_logging(container.settings.profile, service="operational-resilience-mapping")
-    studio = build_studio(container)
+    routing = RecordingReviewRouter(container.review_router)
+    studio = build_studio(container, review_router=routing)
     service = ImportantBusinessService(id=args.service_id, name=args.service_name)
 
     if args.command == "map":
@@ -60,7 +62,7 @@ def main(argv: list[str] | None = None) -> int:
         for tolerance in proposal.tolerances:
             print(f"  {tolerance.metric.value.upper()}: {tolerance.value} {tolerance.unit}")
         print(f"  requires_human_review: {proposal.requires_human_review}")
-        print(f"  routed to human review: {review_ref}")
+        print(f"  human review hand-off : {routing.outcome.value} {review_ref}".rstrip())
         return 0
 
     return 2  # pragma: no cover - argparse requires a subcommand

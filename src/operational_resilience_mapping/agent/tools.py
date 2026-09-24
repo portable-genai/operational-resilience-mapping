@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any
 from hex_service_kit.serialization import to_jsonable
 from pii_kit import redact
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import Container, Settings, build_container
 from ..domain.models import ImportantBusinessService, Regulator
 from ..domain.pii import PII_PATTERNS
@@ -83,10 +84,12 @@ def assess_resilience(
 
     Returns:
       A JSON-safe dict with every string masked for personal data (P-04), the derived tolerances
-      and ``review_ref``: where the escalation WENT (a tolerance proposal always escalates).
+      ``review_ref``: where the escalation WENT (a tolerance proposal always escalates), and
+      ``review_routing``: routed, failed or off, so an empty reference is never ambiguous.
     """
     container = _container(settings)
-    studio = build_studio(container)
+    routing = RecordingReviewRouter(container.review_router)
+    studio = build_studio(container, review_router=routing)
     service = ImportantBusinessService(id=service_id, name=service_name)
     resilience_map, _reconciliation, _gaps = studio.build_map(
         service, scope, actor=actor, tenant=tenant
@@ -99,6 +102,7 @@ def assess_resilience(
         raise TypeError("a tolerance proposal must serialise to a JSON object")
     # Attached after the redaction pass: it is a routing reference, not narrative text.
     payload["review_ref"] = review_ref
+    payload["review_routing"] = routing.outcome.value
     return payload
 
 
