@@ -6,6 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from ..config import OFFLINE_STUB_MODEL
 from ..domain.models import ToleranceProposal
 
 
@@ -83,7 +84,8 @@ class HealthResponse(BaseModel):
     status: str
     profile: str
     region: str
-    #: Provenance the UI banner states on every page: where the runtime sits and which model
-    #: answers. Both are read off the service because the browser cannot know either.
+    #: What the UI's model pill states before any answer: where the runtime sits and which model
+    #: the bound generator calls. Both are read off the service because the browser cannot know
+    #: either. Once a request is answered, the pill shows that response's ``X-Answered-By``.
     runtime: str = "local"  # "gcp" | "local"
-    generator_model: str = "deterministic-offline-stub"
+    generator_model: str = OFFLINE_STUB_MODEL

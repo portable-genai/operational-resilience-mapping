@@ -1,18 +1,23 @@
-"""The provenance the UI banner states must be true of the profile the service is running.
+"""What the console's model pill states before any answer must be true of the running profile.
 
-Every served console names, at the top of every page, WHERE it is running and WHICH model
-answers (org decision, 2026-08-30). Both halves come from ``/healthz`` because the browser
-cannot know either: a console that read its runtime from ``window.location`` would be right
-until the day the deployment served through a proxy, and wrong silently after that.
+Every served console shows two small pills at the top right (owner decision, 2026-09-23; they
+replaced the full-width provenance banner): the model that ANSWERED the last request, and
+``Search`` when that answer used an online search tool. Until a request has been answered, the
+model pill shows ``generator_model`` from ``/healthz``, dimmed, with WHERE the process runs
+(``runtime``) in its title. Both come from ``/healthz`` because the browser cannot know either: a
+console that read its runtime from ``window.location`` would be right until the day the
+deployment served through a proxy, and wrong silently after that.
 
-The reason this is worth a test rather than a glance is what the banner is FOR. These systems
-are demonstrated on a laptop and on a deployment, sometimes in the same hour, and a screenshot
-of one is indistinguishable from the other. A banner that was merely present but wrong is worse
-than no banner: it converts "the viewer does not know" into "the viewer has been told the wrong
-thing", and the wrong thing here is whether a figure came from a managed model or from a
-deterministic offline stub.
+The reason this is worth a test rather than a glance is what the pill is FOR. These systems are
+demonstrated on a laptop and on a deployment, sometimes in the same hour, and a screenshot of one
+is indistinguishable from the other. A pill that was merely present but wrong is worse than no
+pill: it converts "the viewer does not know" into "the viewer has been told the wrong thing", and
+the wrong thing here is whether a figure came from a managed model or from a deterministic
+offline stub.
 
-So the assertions below are about AGREEMENT with the profile, not about presence.
+So the assertions below are about AGREEMENT with the profile, not about presence. The answered
+half (``X-Answered-By`` / ``X-Search-Used``) is held by ``test_answer_provenance.py``, and the
+console half by ``test_ui_surface.py``.
 """
 
 from __future__ import annotations
@@ -22,7 +27,7 @@ from pathlib import Path
 
 import pytest
 
-from operational_resilience_mapping.config import Settings
+from operational_resilience_mapping.config import OFFLINE_STUB_MODEL, Settings
 
 CONFIG_PATH = Path("config/settings.yaml")
 
@@ -33,7 +38,7 @@ CONFIG_PATH = Path("config/settings.yaml")
 #: exists and refuses. A reviewer approving an escalation is entitled to know which they read.
 _NON_MANAGED_ANSWERS = frozenset(
     {
-        "deterministic-offline-stub",
+        OFFLINE_STUB_MODEL,
         "no-model",
         "onprem-not-implemented",
         "managed-model-unavailable",
@@ -46,20 +51,20 @@ def _for_profile(profile: str) -> Settings:
 
 
 @pytest.mark.parametrize("profile", ["local", "gcp", "onprem"])
-def test_the_runtime_half_states_where_the_process_runs(profile: str) -> None:
+def test_the_runtime_states_where_the_process_runs(profile: str) -> None:
     """``onprem`` reads ``local``, because that is its entire point.
 
-    A managed model call does not make a process cloud-hosted. This half is about where the
-    PROCESS runs and the other half is about whose model answers, and collapsing the two is how
-    an on-premises deployment ends up describing itself as running on GCP.
+    A managed model call does not make a process cloud-hosted. ``runtime`` is about where the
+    PROCESS runs and ``generator_model`` is about whose model answers, and collapsing the two
+    is how an on-premises deployment ends up describing itself as running on GCP.
     """
     settings = _for_profile(profile)
     assert settings.runtime == ("gcp" if profile == "gcp" else "local")
 
 
 @pytest.mark.parametrize("profile", ["local", "gcp", "onprem"])
-def test_the_model_half_is_always_answered(profile: str) -> None:
-    """A blank is not an option: the banner renders nothing rather than render a falsehood."""
+def test_the_configured_model_is_always_answered(profile: str) -> None:
+    """A blank is not an option: the pill renders nothing rather than render a falsehood."""
     assert _for_profile(profile).generator_model.strip()
 
 
@@ -67,7 +72,7 @@ def test_the_model_half_is_always_answered(profile: str) -> None:
 def test_no_offline_profile_claims_a_managed_model(profile: str) -> None:
     """The defect that matters, stated as an assertion.
 
-    A laptop run naming a Gemini model is precisely the confusion the banner exists to remove,
+    A laptop run naming a Gemini model is precisely the confusion the pill exists to remove,
     and it is the one direction a reviewer cannot detect by looking at the page.
     """
     answer = _for_profile(profile).generator_model
@@ -77,7 +82,7 @@ def test_no_offline_profile_claims_a_managed_model(profile: str) -> None:
     )
 
 
-def test_the_health_contract_carries_both_halves() -> None:
+def test_the_health_contract_carries_both_values() -> None:
     """The wire contract the console actually reads. A property nothing serves is not a contract.
 
     Asserted on the response MODEL rather than by calling ``/healthz`` through a test client.
@@ -94,9 +99,9 @@ def test_the_health_contract_carries_both_halves() -> None:
 
 
 def test_the_endpoint_answers_from_settings_rather_than_a_literal() -> None:
-    """A banner hard-coded at the endpoint would be right once and wrong after the next rebind.
+    """A pill value hard-coded at the endpoint would be right once and wrong after the next rebind.
 
-    Both halves are properties of :class:`Settings`, so the values the endpoint sends are the
+    Both values are properties of :class:`Settings`, so the values the endpoint sends are the
     values the profile implies; this pins that they are readable and non-empty together, which
     is what the endpoint relies on.
     """
