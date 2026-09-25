@@ -28,6 +28,14 @@ function reviewRoutingOf(body: string): string | undefined {
   }
 }
 
+// The regimes `Regulator` accepts (domain/models.py). The service refuses any other value with a
+// 422 naming the accepted list, so the console offers exactly these and nothing free-typed.
+const REGULATORS = [
+  { value: "APRA_CPS230", label: "APRA CPS 230 (Australia)" },
+  { value: "DORA", label: "DORA (EU)" },
+  { value: "UK_OPRES", label: "UK operational resilience (FCA / PRA / BoE)" },
+];
+
 interface CardSummary {
   name?: string;
   description?: string;
@@ -36,8 +44,13 @@ interface CardSummary {
 
 export default function Home() {
   const [persona, setPersona] = useState(PERSONAS[0]);
-  const [subject, setSubject] = useState("Acme Holdings (FICTIONAL)");
-  const [text, setText] = useState("urgent data breach reported by the branch");
+  // Prefilled with the fictional important business service the local profile maps: its asset
+  // inventory, outsourcing register and document corpus all answer for this estate.
+  const [serviceId, setServiceId] = useState("ibs-retail-payments");
+  const [serviceName, setServiceName] = useState("Retail Payments (FICTIONAL)");
+  const [scope, setScope] = useState("projects/fictional");
+  const [regulator, setRegulator] = useState(REGULATORS[0].value);
+  const [documents, setDocuments] = useState("doc-settlement-runbook");
   const [result, setResult] = useState("");
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -62,10 +75,22 @@ export default function Home() {
     setBusy(true);
     setFailed(false);
     try {
-      const response = await fetch(API + "/v1/triage", {
+      // Comma-separated document ids to ingest into the map first (the process and people
+      // chains); an empty field sends an empty list, which the service accepts.
+      const documentIds = documents
+        .split(",")
+        .map((id) => id.trim())
+        .filter((id) => id.length > 0);
+      const response = await fetch(API + "/v1/tolerance", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Dev-Persona": persona },
-        body: JSON.stringify({ subject, text }),
+        body: JSON.stringify({
+          scope,
+          service_id: serviceId,
+          service_name: serviceName,
+          regulator,
+          document_ids: documentIds,
+        }),
       });
       const body = await response.text();
       setFailed(!response.ok);
@@ -83,7 +108,7 @@ export default function Home() {
       <h1>{card?.name ?? "Agent console"}</h1>
       <p className="sub">
         {card?.description ??
-          "Submit a case. The decision is deterministic, cited, and routed to a human reviewer when it escalates."}
+          "Map an important business service and propose its impact tolerances. The values are deterministic, cited, and routed to a human reviewer."}
       </p>
 
       <form onSubmit={submit}>
@@ -102,17 +127,35 @@ export default function Home() {
         </fieldset>
 
         <fieldset>
-          <legend>The case</legend>
+          <legend>The business service</legend>
           <label>
-            Subject
-            <input value={subject} onChange={(event) => setSubject(event.target.value)} />
+            Service id
+            <input value={serviceId} onChange={(event) => setServiceId(event.target.value)} />
           </label>
           <label>
-            Description
-            <textarea value={text} onChange={(event) => setText(event.target.value)} />
+            Service name
+            <input value={serviceName} onChange={(event) => setServiceName(event.target.value)} />
           </label>
-          <button type="submit" disabled={busy}>
-            {busy ? "Working" : "Triage this case"}
+          <label>
+            Asset and register scope
+            <input value={scope} onChange={(event) => setScope(event.target.value)} />
+          </label>
+          <label>
+            Regulator
+            <select value={regulator} onChange={(event) => setRegulator(event.target.value)}>
+              {REGULATORS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Document ids to ingest (comma-separated, optional)
+            <input value={documents} onChange={(event) => setDocuments(event.target.value)} />
+          </label>
+          <button type="submit" disabled={busy || !serviceId.trim() || !serviceName.trim()}>
+            {busy ? "Working" : "Propose impact tolerances"}
           </button>
         </fieldset>
       </form>
