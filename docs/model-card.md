@@ -112,11 +112,12 @@ still an aspiration for the rest.
 - **Evaluation of the live model**: add a managed-profile run, registered with the `model-quality-gate` promotion
   gate (P-08, rule R5), that scores `narrative_groundedness` over RAW narrator output rather than
   over the check's own fixtures.
-- **Prompt-injection screening** (rule R1): the `agent-guardrail-gateway` is not bound. The exposure
-  is real here rather than theoretical, because the managed pipeline is designed to pass extracted
-  DOCUMENT TEXT (process docs, runbooks, org charts, via `DocumentExtractionPort`) to the model for
-  edge proposal. Screen that text before it reaches a prompt, and fail closed to deterministic-only
-  when the screen is unavailable.
+- **Prompt-injection screening** (rule R1) covers the narration today: `GuardrailPort` screens the
+  prompt before the model is called and the reply before it is used, and a refusal or an
+  unavailable screen is audited `BLOCKED` and falls back to deterministic prose. The managed
+  pipeline is also designed to pass extracted DOCUMENT TEXT (process docs, runbooks, org charts,
+  via `DocumentExtractionPort`) to a model for edge proposal; that call does not exist yet, and when
+  it lands it must go through the same screen and fail closed to deterministic-only the same way.
 - **Reasoning trace**: the audit record carries the result and its citations, not the prompt and
   reply pair. `COMPLIANCE.md` P-07 records that as owed.
 

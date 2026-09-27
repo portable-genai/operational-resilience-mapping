@@ -26,6 +26,7 @@ def build_studio(
         extraction=container.extraction,
         compliance=container.compliance,
         generation=container.generation,
+        guardrail=container.guardrail,
         map_store=container.map_store,
         audit=container.audit,
         tracer=container.tracer,

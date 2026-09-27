@@ -6,6 +6,20 @@ narrates only, schema-validated and discarded on failure. Consequential results 
 proposal, a breached scenario) set ``requires_human_review`` and route to human-review-console under
 rule R8 in the SAME call that produced them. PII is redacted before any audit write.
 
+Rule R1: the guardrail screens BOTH directions of the one generation call this service makes, the
+tolerance narration. INPUT: the prompt exactly as the model would receive it (after redaction),
+which carries the caller-supplied service name and the compliance port's regulatory prose, before
+the generation port is called. OUTPUT: the narrative the model returned, before it is checked for
+grounded figures or placed on the proposal. The text each screen hands back is the text used from
+then on, exactly as given.
+
+The narration is OPTIONAL by design (it adds context, never a number or a finding, and the
+deterministic prose already stands in whenever a reply is unusable), so a block does not refuse the
+proposal: the refusal is audited ``Decision.BLOCKED`` first, and the deterministic prose then stands
+in, so no model text built on or producing unsafe text ever reaches the proposal. A guardrail that
+cannot decide (its backend errored or timed out, or the on-prem placeholder is bound) is a refusal
+too, audited the same way: the model is never called on a prompt that was not screened.
+
 The domain stays pure: this module imports no web framework and no cloud SDK. The proposer that
 turns the ingested sources into candidate dependency edges is deterministic here so the offline
 gate is reproducible; in a managed deployment the generation port proposes edges from the
@@ -21,6 +35,7 @@ from ..ports.audit import AuditSinkPort
 from ..ports.compliance import CompliancePort
 from ..ports.extraction import DocumentExtractionPort
 from ..ports.generation import GenerationPort
+from ..ports.guardrail import GuardrailPort
 from ..ports.map_store import MapStorePort
 from ..ports.observability import ObservabilityTracerPort
 from ..ports.register import RegisterReadPort
@@ -36,7 +51,7 @@ from .concentration_exit import (
 from .errors import AuthorizationError
 from .hitl import ResilienceReviewPolicy
 from .ingestion_service import IngestionService
-from .kernel import AuditEvent, Citation, Decision, Severity, utcnow
+from .kernel import AuditEvent, Citation, Decision, Direction, GuardrailVerdict, Severity, utcnow
 from .map_service import MapService
 from .models import (
     CandidateEdge,
@@ -83,6 +98,11 @@ _NARRATIVE_SYSTEM = (
 _BUILD_MAP_SPAN = "resilience.build_map"
 _PROPOSE_SPAN = "resilience.propose_tolerances"
 
+#: The audit action a guardrail refusal of the tolerance narration is recorded under. Distinct
+#: from ``propose_tolerances`` itself, whose ESCALATED record still follows: the proposal was
+#: made, only the model's narration of it was refused.
+_NARRATION_ACTION = "narrate_tolerances"
+
 
 class StudioService:
     """Build resilience maps, propose tolerances and test scenarios. Ports are explicit."""
@@ -95,6 +115,7 @@ class StudioService:
         extraction: DocumentExtractionPort,
         compliance: CompliancePort,
         generation: GenerationPort,
+        guardrail: GuardrailPort,
         map_store: MapStorePort,
         audit: AuditSinkPort,
         tracer: ObservabilityTracerPort,
@@ -105,6 +126,10 @@ class StudioService:
         self._extraction = extraction
         self._compliance = compliance
         self._generation = generation
+        # REQUIRED, for the tracer's reason below: a surface that forgot the guardrail would
+        # narrate unscreened and look screened. Switching it off is a stated control
+        # (``RESILIENCE_GUARDRAIL=off`` binds the disabled guardrail), never an omission.
+        self._guardrail = guardrail
         self._map_store = map_store
         self._audit = audit
         # REQUIRED, and deliberately not an optional with a no-op default. A default would let a
@@ -210,7 +235,10 @@ class StudioService:
                 service, resilience_map, regulator, citations=requirement.citations
             )
             chain_criticality = ToleranceEngine().chain_criticality(service, resilience_map)
-            narrative = self._narrate_tolerances(service, tolerances, requirement)
+            severity = self._review_policy.proposal_severity(chain_criticality)
+            narrative = self._narrate_tolerances(
+                service, tolerances, requirement, actor=actor, severity=severity
+            )
 
             proposal = ToleranceProposal(
                 service_id=service.id,
@@ -220,7 +248,6 @@ class StudioService:
                 requires_human_review=self._review_policy.requires_review(),
                 citations=requirement.citations,
             )
-            severity = self._review_policy.proposal_severity(chain_criticality)
             summary = (
                 f"{service.name}: proposed {len(tolerances)} impact tolerances under "
                 f"{regulator.value} (chain criticality {chain_criticality.value})"
@@ -388,8 +415,12 @@ class StudioService:
         service: ImportantBusinessService,
         tolerances: list[ImpactTolerance],
         requirement: ComplianceAnswer,
+        *,
+        actor: str,
+        severity: Severity,
     ) -> str:
-        """Draft the tolerance justification. The prompt is REDACTED before it leaves.
+        """Draft the tolerance justification. The prompt is REDACTED, then SCREENED, before it
+        leaves, and the reply is SCREENED before it is used (rule R1).
 
         ``service.name`` is client-supplied: it arrives verbatim in the ``POST /v1/tolerance``
         body and is never validated as a label. ``requirement.answer`` is regulatory prose from
@@ -402,25 +433,84 @@ class StudioService:
 
         Only the prompt is masked. The tolerance figures are the engine's and are never touched:
         redaction must not be able to change a number.
+
+        The same two fields are untrusted text headed for a model, so the guardrail screens the
+        prompt AS SENT (masked, both fields joined, so an injection split across them is seen
+        whole) before the generation port is called, and the parsed narrative before it is
+        grounded or returned. A refusal in either direction is audited ``BLOCKED`` and the
+        deterministic prose stands in; a reply that does not parse is discarded unread, so no
+        model text reaches the proposal without passing the OUTPUT screen.
         """
         allowed = {t.value for t in tolerances}
         deterministic = "; ".join(
             f"{t.metric.value.upper()} {t.value} {t.unit}" for t in tolerances
         )
+        fallback = f"Proposed tolerances: {deterministic}."
         prompt = redact(
             f"Service: {service.name}. Regulatory basis: {requirement.answer}. "
             f"Engine-derived tolerances: {deterministic}.",
             PII_PATTERNS,
         )
+        screened_prompt = self._screen(prompt, Direction.INPUT, actor=actor, severity=severity)
+        if screened_prompt is None:
+            return fallback
         try:
-            response = self._generation.generate(build_request(_NARRATIVE_SYSTEM, prompt))
+            response = self._generation.generate(build_request(_NARRATIVE_SYSTEM, screened_prompt))
         except Exception:  # noqa: BLE001 - narration must never fail the proposal
-            return f"Proposed tolerances: {deterministic}."
+            return fallback
         narrative = parse_narrative(response)
-        if not narrative or not numbers_are_grounded(narrative, allowed):
-            # Discard an unusable or ungrounded narrative; the deterministic prose stands.
-            return f"Proposed tolerances: {deterministic}."
-        return narrative
+        if not narrative:
+            # Discard an unusable reply; the deterministic prose stands.
+            return fallback
+        screened = self._screen(narrative, Direction.OUTPUT, actor=actor, severity=severity)
+        if not screened or not numbers_are_grounded(screened, allowed):
+            # Refused, redacted to nothing, or ungrounded: the deterministic prose stands.
+            return fallback
+        return screened
+
+    def _screen(
+        self, text: str, direction: Direction, *, actor: str, severity: Severity
+    ) -> str | None:
+        """Screen one text in one direction: the text to use from here on, or ``None``.
+
+        ``None`` means refused, and the refusal is already audited ``BLOCKED`` when it returns:
+        a block, and a guardrail that raised instead of deciding (fail closed). An allowed
+        verdict's ``sanitized_text`` is returned exactly as given, including an empty string:
+        a screen that redacted everything has not asked for the original back.
+        """
+        try:
+            verdict: GuardrailVerdict = self._guardrail.screen(text, direction)
+        except Exception as exc:  # noqa: BLE001 - cannot decide: refuse, never allow
+            self._audit_blocked(
+                actor, direction, f"guardrail unavailable ({type(exc).__name__})", severity
+            )
+            return None
+        if not verdict.allowed or verdict.sanitized_text is None:
+            reason = verdict.reason or f"narration {direction.value} blocked by guardrail"
+            self._audit_blocked(actor, direction, reason, severity)
+            return None
+        return verdict.sanitized_text
+
+    def _audit_blocked(
+        self, actor: str, direction: Direction, reason: str, severity: Severity
+    ) -> None:
+        """Audit a guardrail refusal of the narration (rule R1/R2), before the prose stands in.
+
+        Never carries the refused text, nor the service name it may contain: only that a
+        refusal happened, in which direction, and why. A refused attempt is a security-relevant
+        event the WORM trail must hold even though the proposal itself still goes ahead.
+        """
+        self._record(
+            AuditEvent(
+                action=_NARRATION_ACTION,
+                actor=actor,
+                decision=Decision.BLOCKED,
+                severity=severity,
+                redacted_summary=f"narration blocked ({direction.value}): {reason}",
+                citations=(),
+                timestamp=utcnow(),
+            )
+        )
 
     @staticmethod
     def _mtd_minutes(tolerances: list[ImpactTolerance]) -> int:

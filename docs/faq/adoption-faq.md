@@ -109,6 +109,6 @@ keys and the `facts` dict the checks read.
 [`../practices-audit.md`](../practices-audit.md) carries the per-check verdict and the work list.
 The ones that matter most before production: the managed placeholders in `managed_readiness.py`
 (the asset-inventory scan, document extraction, Gemini narration and both halves of the AlloyDB map
-store), the missing surfaces for the scenario and concentration engines, binding the `agent-guardrail-gateway` before untrusted document text reaches a narrator, registering this repo's metric bundle
+store), the missing surfaces for the scenario and concentration engines, putting the planned edge proposal over extracted document text through the same guardrail screen the narration already uses, registering this repo's metric bundle
 with `model-quality-gate` so `eval/run_eval.py --mode gate` has an authority to ask, and B4. The Terraform stack is
 written, validated and tested against a mocked provider; it has never been applied.

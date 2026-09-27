@@ -74,9 +74,12 @@ adapter raises rather than calling Gemini, so the seam is built but unwired. The
 be dropped into is: exactly one port (`ports/generation.py`), a prompt built from engine figures,
 and a reply that is discarded unless it parses as JSON with a `narrative` key and quotes only
 figures the engine produced (`domain/narrative.py`: `parse_narrative`, `numbers_are_grounded`). A
-discarded or failed narration falls back to deterministic prose. Prompt-injection screening through
-the `agent-guardrail-gateway` is **not** wired, and it matters here because the managed design passes
-extracted document text to the model. See [`../model-card.md`](../model-card.md).
+discarded or failed narration falls back to deterministic prose. Prompt-injection screening is
+wired through `GuardrailPort` (`agent-guardrail-gateway`'s Model Armor half under `gcp`): the prompt
+is screened before the model is called and the reply before it is used, and a refusal is audited
+`BLOCKED` before the same deterministic prose stands in. The managed design's planned edge proposal
+over extracted document text must use the same screen when it lands. See
+[`../model-card.md`](../model-card.md).
 
 ### How is the audit trail protected?
 
@@ -102,7 +105,8 @@ expression cannot tell apart.
 
 - **Login.** This repo authenticates nobody itself: the platform in front of it does, and the UI
   forwards the assertion without parsing or trusting a parsed copy.
-- **Injection defence and output filtering.** Owned by `agent-guardrail-gateway`; not bound yet.
+- **Injection defence and output filtering.** Owned by `agent-guardrail-gateway`; this repo binds its
+  Model Armor half through `GuardrailPort` and screens the narration in both directions.
 - **The review queue.** Owned by `human-review-console`; this repo produces escalations and routes them.
 - **The third-party register.** Owned by `third-party-risk-ddq`; read as data, never mirrored here.
 - **The regulatory corpus.** Owned by `compliance-advisory`; read as data, never restated here.

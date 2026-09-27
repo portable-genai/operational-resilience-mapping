@@ -27,6 +27,14 @@ Locked decisions, pinned stack, contracts. This document is the deepest authorit
   `review_routing` (`routed`, `failed`, `off` or `not_required`), so a caller can tell a routed
   escalation from one that stopped here. Under the managed profile, routing on with no console
   configured refuses at boot; `RESILIENCE_REVIEW_ROUTING=off` is the stated way to run without it.
+- **Guardrail (R1)**: the one generation call, the tolerance narration, is screened through
+  `GuardrailPort` in both directions: the prompt as sent (the caller-supplied service name and the
+  compliance prose, masked) before the model is called, and the model's narrative before it is
+  grounded or returned. A refusal, or a guardrail that cannot decide, is audited `BLOCKED` and the
+  deterministic prose stands in; the proposal itself is unaffected. Under `gcp` it is a regional
+  Model Armor template that fails closed on anything short of a complete, clean screen, and the
+  managed profile refuses to boot with the guardrail on and no template named;
+  `RESILIENCE_GUARDRAIL=off` is the stated way to run without it.
 - **Profile**: resolved ONCE, at import, into a `ProfileChoice` and never a bare string. Three
   states of `RESILIENCE_PROFILE`: UNSET is NO CHOICE (the SDK-free adapters
   still bind, but the seeded personas are refused, no service-to-service scheme is selected, every

@@ -198,6 +198,37 @@ SKIPS rather than fails when its configuration is absent, so an unconfigured run
 rather than a false pass. It writes an obviously fictional audit record to the configured project
 and, when `HUMAN_REVIEW_URL` is set, submits one fictional review to the live console.
 
+## Guardrail (rule R1)
+
+`ports/guardrail.py` screens the one generation call this service makes, the tolerance narration
+(`domain/studio_service.py`): the prompt exactly as the model would receive it (masked, carrying the
+caller-supplied service name and the compliance port's prose) INPUT before the generation port is
+called, and the narrative the model returned OUTPUT before it is grounded or placed on the proposal.
+Each screen's `sanitized_text` is the text used from then on, exactly as given. Under `gcp` it calls
+a regional Model Armor template (`config/settings.yaml` `model_armor.template_id`, on the regional
+host `model_armor.host`, never the global endpoint); `infra/terraform/model_armor.tf` creates that
+template, gated on `var.model_armor_full_capabilities` for the malicious-URI filter and
+multi-language detection, which not every region serves: `asia-southeast1` refuses the
+malicious-URI filter, so a deployment there sets `model_armor_full_capabilities = false` (see
+`terraform.tfvars.example`).
+
+The managed guardrail fails CLOSED. It allows only on an explicit `NO_MATCH_FOUND` from a screen
+where every filter ran (`invocation_result` `SUCCESS`); a match, an absent or undecided result, a
+`PARTIAL` or `FAILURE` screen (a filter skipped for size or language, or erroring, reports no
+match), and any API error all refuse, and every call carries a deadline
+(`model_armor.timeout_seconds`, 10 s by default) so a stalled backend refuses rather than hangs.
+The narration is optional by design, so a refusal does not fail the proposal: it is audited
+`Decision.BLOCKED` under the action `narrate_tolerances` (with `guardrail unavailable (<error>)`
+when the guardrail raised instead of deciding), and the deterministic prose stands in. The
+proposal is still derived, audited and routed for review as usual. The `guardrail_blocks`
+log-based metric (`monitoring.tf`) counts those records.
+
+`RESILIENCE_GUARDRAIL` switches the guardrail, read in the same three states as review routing:
+unset is on, `true`/`false` (or `on`/`off`) wins, and an emptied or unrecognised value refuses at
+boot. Off binds `DisabledGuardrail`, which allows everything unchanged, and logs one warning at
+startup. With the guardrail on and no Model Armor template configured, the managed profile REFUSES
+TO BOOT. Terraform states the switch as `guardrail_enabled`.
+
 ## Alerts
-Alert on guardrail blocks, key creation, and VPC-SC perimeter denials (see the
+Alert on guardrail blocks (`guardrail_blocks`), key creation, and VPC-SC perimeter denials (see the
 deploy-and-residency-hardening skill).

@@ -156,6 +156,7 @@ def crossing_texts(rows: Sequence[Mapping[str, Any]]) -> tuple[list[str], list[s
         extraction=container.extraction,
         compliance=container.compliance,
         generation=recorder,
+        guardrail=container.guardrail,
         map_store=container.map_store,
         audit=container.audit,
         tracer=container.tracer,

@@ -798,6 +798,10 @@ def _exit_generation(container: Any) -> Any:
     )
 
 
+def _exit_guardrail(container: Any) -> Any:
+    return container.guardrail.screen("narrate the proposed tolerances", kernel.Direction.INPUT)
+
+
 def _exit_tracer(container: Any) -> Any:
     with container.tracer.span("exit.tour", action="portability"):
         return None
@@ -821,6 +825,7 @@ EXIT_CALLS: dict[str, Callable[[Any], Any]] = {
     "register": _exit_register,
     "compliance": _exit_compliance,
     "generation": _exit_generation,
+    "guardrail": _exit_guardrail,
 }
 
 

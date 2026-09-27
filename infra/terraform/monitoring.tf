@@ -8,7 +8,7 @@
 #
 # Every filter below names a field this deployment actually emits:
 #   - critical_escalations : the managed audit adapter writes AuditEvent as a struct payload,
-#     so jsonPayload.decision is "escalated" or "allowed" (domain/kernel.py Decision) and
+#     so jsonPayload.decision is "escalated", "allowed" or "blocked" (domain/kernel.py Decision) and
 #     jsonPayload.severity carries the band. A critical escalation is a maker-checker event a
 #     reviewer has to see; the deterministic core decided it, so it is never noise.
 #   - sa_key_creation : an exportable service-account key was created. Org policy should have
@@ -18,9 +18,11 @@
 #   - cmek_changes : a CMEK key destroy or update. Key material changing is a P-09 event.
 #   - edge_denials : Cloud Armor denied or throttled a request at the edge.
 #
-# There is deliberately no guardrail-block metric. A rendered repo binds no guardrail port yet
-# (COMPLIANCE rule R1 records that as owed), and a metric whose filter can never match is a
-# green light nobody earned. Add it in the same commit that binds the guardrail.
+#   - guardrail_blocks : the guardrail (rule R1) refused the tolerance narration's prompt or the
+#     model's narrative, or could not decide. The studio audits each refusal with
+#     jsonPayload.decision "blocked" (domain/studio_service.py) before the deterministic prose
+#     stands in, so a burst here is an injection attempt or a guardrail outage, either of which
+#     someone has to look at.
 #
 # Alert policies are always created; var.alert_notification_channels attaches the channels.
 #
@@ -31,6 +33,10 @@ locals {
     critical_escalations = {
       description = "Critical-severity escalation recorded in the app audit log (maker-checker, P-06)"
       filter      = "logName=\"projects/${var.project_id}/logs/${local.audit_log_name}\" AND jsonPayload.decision=\"escalated\" AND jsonPayload.severity=\"critical\""
+    }
+    guardrail_blocks = {
+      description = "Guardrail refusal recorded in the app audit log (rule R1)"
+      filter      = "logName=\"projects/${var.project_id}/logs/${local.audit_log_name}\" AND jsonPayload.decision=\"blocked\""
     }
     sa_key_creation = {
       description = "Service-account key created (org policy should forbid this)"

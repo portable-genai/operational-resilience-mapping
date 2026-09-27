@@ -159,9 +159,12 @@ than rebuilds (see [`faq/features-faq.md`](faq/features-faq.md) for the full map
 - `agent-registry`: this agent publishes its A2A card at `/.well-known/agent-card.json`;
   register it rather than inventing a discovery mechanism.
 
-The guardrail gateway (`agent-guardrail-gateway`) is **not** integrated today, and the enterprise knowledge base (`enterprise-knowledge-base`)
-is not either. `agent-guardrail-gateway` becomes mandatory the moment untrusted free text reaches the narrator: see rule
-R1 in [`../COMPLIANCE.md`](../COMPLIANCE.md).
+The guardrail gateway's Model Armor half (`agent-guardrail-gateway`) is bound through `GuardrailPort`: the
+narration's prompt is screened before the model is called and its reply before it is used, a refusal is
+audited `BLOCKED` and the deterministic prose stands in (rule R1 in [`../COMPLIANCE.md`](../COMPLIANCE.md)).
+Under `gcp` it needs the Model Armor template `infra/terraform/model_armor.tf` creates; in
+`asia-southeast1` set `model_armor_full_capabilities = false`, because the region refuses the malicious-URI
+filter. The enterprise knowledge base (`enterprise-knowledge-base`) is not integrated.
 
 ## 6. Adoption checklist
 
