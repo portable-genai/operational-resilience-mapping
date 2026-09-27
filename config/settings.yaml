@@ -46,6 +46,18 @@ iap_audience: ${RESILIENCE_IAP_AUDIENCE:-}
 # deliberately distinct from this service's own inbound RESILIENCE_S2S_TOKEN.
 review_url: ${HUMAN_REVIEW_URL:-}
 
+# Rule R1: the Model Armor template the `gcp` guardrail adapter screens the tolerance narration's
+# prompt (input) and narrative (output) through, and the regional host it calls (never the global
+# endpoint, P-05). `template_id` matches the template `infra/terraform/model_armor.tf` creates.
+# Guardrail on (RESILIENCE_GUARDRAIL, unset means on) under the managed profile REFUSES TO BOOT
+# when template_id is empty and the bound adapter is ModelArmorGuardrailAdapter;
+# RESILIENCE_GUARDRAIL=off states the guardrail off.
+model_armor:
+  template_id: ${RESILIENCE_MODEL_ARMOR_TEMPLATE:-operational-resilience-mapping-guardrail}
+  host: ${RESILIENCE_MODEL_ARMOR_HOST:-modelarmor.asia-southeast1.rep.googleapis.com}
+  # The deadline on every sanitize call. A timeout fails CLOSED (audited, narration withheld).
+  timeout_seconds: 10.0
+
 # Slice 4 A2A read surfaces. third-party-risk-ddq (Outsourcing Register) and compliance-advisory (compliance KB) are read as
 # data over A2A. Empty (the default) means the managed adapter REFUSES rather than inventing the
 # data; the offline profile uses the deterministic fixtures. Both are unbuilt in this wave, so
@@ -113,3 +125,9 @@ adapters:
     local: operational_resilience_mapping.adapters.local.generation:LocalGenerationAdapter
     gcp: operational_resilience_mapping.adapters.gcp.generation:CloudGenerationAdapter
     onprem: operational_resilience_mapping.adapters.onprem.generation:OnPremGenerationAdapter
+  # Rule R1: screens the generation call's input (before) and output (after). local is a
+  # deterministic heuristic stand-in; there is no offline emulator for Model Armor.
+  guardrail:
+    local: operational_resilience_mapping.adapters.local.guardrail:LocalHeuristicGuardrailAdapter
+    gcp: operational_resilience_mapping.adapters.gcp.guardrail:ModelArmorGuardrailAdapter
+    onprem: operational_resilience_mapping.adapters.onprem.guardrail:OnPremGuardrailAdapter

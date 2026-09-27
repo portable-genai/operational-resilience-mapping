@@ -19,6 +19,7 @@ from .audit import AuditSinkPort
 from .compliance import CompliancePort
 from .extraction import DocumentExtractionPort
 from .generation import GenerationPort
+from .guardrail import GuardrailPort
 from .identity import (
     CLIENT_ASSERTED,
     END_USER_AUTH_ATTR,
@@ -48,6 +49,7 @@ PORT_PROTOCOLS: dict[str, type] = {
     "register": RegisterReadPort,
     "compliance": CompliancePort,
     "generation": GenerationPort,
+    "guardrail": GuardrailPort,
     "tracer": ObservabilityTracerPort,
     "evaluation": EvaluationGatePort,
 }
@@ -68,6 +70,7 @@ __all__ = [
     "DocumentExtractionPort",
     "EndUserAuthUnavailableError",
     "GenerationPort",
+    "GuardrailPort",
     "IdentityPort",
     "MapStorePort",
     "RegisterReadPort",
